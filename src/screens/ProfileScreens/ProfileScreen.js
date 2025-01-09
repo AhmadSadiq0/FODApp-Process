@@ -1,23 +1,36 @@
 import React from 'react'
 import { 
     StyleSheet, 
-    Text, 
-    View 
+    View ,
+    ScrollView
 } from 'react-native'
-
-const ProfileScreen = () => {
+import ProfileHeader from '../../components/ProfileHeader'
+import TextInputProfile from '../../components/TextInputProfile'
+import { Back_Ground } from '../../res/colors'
+const ProfileScreen = ({navigation,route}) => {
+  const showEditIcon = route?.params?.showEditIcon || false;
   return (
     <View style={styles.container}>
-      <Text>ProfileScreen</Text>
-    </View>
-  )
-}
+      <ProfileHeader
+        navigation={navigation}
+        showDotsIcon={true}
+        showArrowIcon={false}
+      />
 
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <TextInputProfile showEditIcon={showEditIcon} showButton={false} />
+      </ScrollView>
+    </View>
+  );
+};
 const styles = StyleSheet.create({
-    container:{
-        flex:1,
-        alignItems:'center',
-        justifyContent:'center'
-    }
-})
+  container: {
+    flex: 1,
+    backgroundColor: Back_Ground, 
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: 16,
+  },
+});
 export default ProfileScreen;

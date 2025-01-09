@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet, View,Platform, ScrollView,
-  Text, Image, TouchableOpacity, Pressable, Keyboard,
+  StyleSheet,
+  View,
+  Platform,
+  ScrollView,
+  Text,
+  Image,
+  TouchableOpacity,
+  Pressable,
+  Keyboard,
 } from 'react-native';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import CustomButton from '../../components/CustomButtom';
 import InputField from '../../components/CustomInput';
 import { Google_Icon } from '../../res/drawables';
 import { THEME_TEXT_COLOR } from '../../res/colors';
-
+const validationSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email address").required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+});
 const SignInScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
@@ -21,22 +34,22 @@ const SignInScreen = () => {
       'keyboardDidHide',
       () => setKeyboardVisible(false)
     );
-
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
   }, []);
+  const handleSignIn = (values) => {
+    console.log('Sign In Values:', values);
+    alert('Form Submitted!');
+  };
 
   return (
-    <View
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+    <View behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.redContainer}>
           <Image
-            source={require('../../../assets/image.png')} 
+            source={require('../../../assets/image.png')}
             style={styles.image}
             resizeMode="contain"
           />
@@ -53,7 +66,7 @@ const SignInScreen = () => {
             </View>
             {!isKeyboardVisible ? (
               <TouchableOpacity
-                style={styles.touchable1} 
+                style={styles.touchable1}
                 onPress={() => { alert('Go to Google'); }}
               >
                 <Image
@@ -71,24 +84,54 @@ const SignInScreen = () => {
             <View style={styles.divider} />
           </View>
 
-          <InputField
-            label="Email"
-            placeholder="User 's email here"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <InputField
-            label="Password"
-            placeholder="User 's password here"
-            secureTextEntry={true}
-            value={password}
-            onChangeText={setPassword}
-          />
+          <Formik initialValues={{ email: "", password: "" }}
+            validationSchema={validationSchema}
+            onSubmit={(values) => {
+              alert(`Signed Up with: ${JSON.stringify(values)}`);
+            }}>
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
+              <>
+                <InputField
+                  label="Email"
+                  placeholder="User 's email here"
+                  value={values.email}
+                  onChangeText={handleChange("email")}
+                  onBlur={handleBlur("email")}
+                />
+                {touched.email && errors.email && (
+                  <Text style={styles.errorText}>{errors.email}</Text>
+                )}
+                <InputField
+                  label="Password"
+                  placeholder="User 's password here"
+                  secureTextEntry={true}
+                  value={values.password}
+                  onChangeText={handleChange("password")}
+                  onBlur={handleBlur("password")}
+                />
+                {touched.password && errors.password && (
+                  <Text style={styles.errorText}>{errors.password}</Text>
+                )}
+                <CustomButton
+                  title={"SignIn"}
+                  onPress={handleSubmit}
+                />
+                </>
+                 )}
+              </Formik>
         </View>
       </ScrollView>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -101,7 +144,7 @@ const styles = StyleSheet.create({
   redContainer: {
     flex: 3,
     backgroundColor: "red",
-    justifyContent:'center'
+    justifyContent: 'center'
   },
   container2: {
     flex: 3,
@@ -131,7 +174,7 @@ const styles = StyleSheet.create({
   text2: {
     fontSize: 14,
     fontWeight: 'bold',
-    color:THEME_TEXT_COLOR,
+    color: THEME_TEXT_COLOR,
   },
   text3: {
     fontSize: 14,
@@ -147,8 +190,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 25,
     marginVertical: 15,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   Googleimage: {
     width: 20,
@@ -179,6 +222,16 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 30,
   },
+    errorText: {
+    fontSize: 12,
+    color: "red",
+    marginBottom: 10,
+    alignSelf: "flex-start", 
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
+  },
 });
-
 export default SignInScreen;
